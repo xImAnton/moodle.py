@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 
 setuptools.setup(
-    name="moodle-xImAnton_",
+    name="moodle-xImAnton",
     version="1.0.0",
     author="xImAnton_",
     description="A Python Wrapper for the Moodle Mobile API",
