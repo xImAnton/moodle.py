@@ -4,18 +4,21 @@ from .modulebase import MoodleModule
 
 
 class SiteInfo(MoodleModule):
+    """
+    Includes all important config values for moodle
+    """
     def __init__(self, moodle):
         super(SiteInfo, self).__init__(moodle)
-        self.site_name = ""
-        self.first_name = ""
-        self.last_name = ""
-        self.language = ""
-        self.user_id = 0
-        self.private_access_key = ""
-        self.is_admin = False
-        self.functions = []
+        self.site_name: str = ""
+        self.first_name: str = ""
+        self.last_name: str = ""
+        self.language: str = ""
+        self.user_id: int = 0
+        self.private_access_key: str = ""
+        self.is_admin: bool = False
+        self.functions: list = []
 
-    async def fetch(self):
+    async def fetch(self) -> None:
         json = await self.moodle.api_request("core_webservice_get_site_info")
         self.site_name = json["sitename"]
         self.first_name = json["firstname"]

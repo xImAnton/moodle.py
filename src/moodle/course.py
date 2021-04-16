@@ -4,15 +4,22 @@ from datetime import datetime
 
 from .modulebase import MoodleModule, requires_resolved
 from .resources import MoodleResource
-from .util import get
+from .util import filter
+from typing import Optional, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .moodle import MoodleCrawler
 
 
 class CourseManager(MoodleModule):
-    def __init__(self, moodle):
+    def __init__(self, moodle: MoodleCrawler):
         super(CourseManager, self).__init__(moodle)
-        self.courses = None
+        self.courses: Optional[List[MoodleCourse]] = None
 
     async def fetch(self):
+        """
+        Fetches the Course Overview of the current Moodle Account.
+        After calling this, CourseManager#courses is accessible.
+        """
         json = await self.moodle.api_request("core_enrol_get_users_courses", userid=self.moodle.site_info.user_id,
                                              returnusercount=1)
         self.courses = []
@@ -31,37 +38,37 @@ class MoodleCourse(MoodleModule):
 
     def __init__(self, moodle, data):
         super(MoodleCourse, self).__init__(moodle)
-        self.id = data["id"]
+        self.id: int = data["id"]
         try:
-            self.short_name = data["shortname"]
-            self.full_name = data["fullname"]
-            self.display_name = data["displayname"]
+            self.short_name: str = data["shortname"]
+            self.full_name: str = data["fullname"]
+            self.display_name: str = data["displayname"]
             self.id_number = data["idnumber"]
-            self.visible = data["visible"]
-            self.summary = data["summary"]
-            self.summary_format = data["summaryformat"]
+            self.visible: bool = data["visible"]
+            self.summary: str = data["summary"]
+            self.summary_format: int = data["summaryformat"]
             self.format = data["format"]
-            self.show_grades = data["showgrades"]
-            self.language = data["lang"]
-            self.category = data["category"]
+            self.show_grades: bool = data["showgrades"]
+            self.language: str = data["lang"]
+            self.category: int = data["category"]
             self.progress = data["progress"]
             self.completed = data["completed"]
-            self.start_date = datetime.fromtimestamp(data["startdate"])
-            self.end_date = None if data["enddate"] == 0 else datetime.fromtimestamp(data["enddate"])
+            self.start_date: datetime = datetime.fromtimestamp(data["startdate"])
+            self.end_date: datetime = None if data["enddate"] == 0 else datetime.fromtimestamp(data["enddate"])
             self.marker = data["marker"]
-            self.last_access = datetime.fromtimestamp(data["lastaccess"])
-            self.overview_files = data["overviewfiles"]
+            self.last_access: datetime = datetime.fromtimestamp(data["lastaccess"])
+            self.overview_files: List[dict] = data["overviewfiles"]
             self._set_resolved("init")
         except KeyError:
             pass
 
-        self.data = None
-        self.resources = None
+        self.data: Optional[dict] = None
+        self.resources: Optional[List[MoodleResource]] = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"MoodleCourse[id={self.id}, display_name=\"{self.display_name}\"]"
 
-    async def fetch(self):
+    async def fetch(self) -> None:
         data = {
             "options[0][name]": "excludemodules",
             "options[0][value]": 0,
@@ -74,7 +81,7 @@ class MoodleCourse(MoodleModule):
         self.data = json
         self._set_resolved()
 
-    async def fetch_resources(self):
+    async def fetch_resources(self) -> None:
         json = await self.moodle.api_request("mod_resource_get_resources_by_courses", **{"courseids[0]": 14})
         self.resources = []
         self._set_resolved("resources")
@@ -83,4 +90,4 @@ class MoodleCourse(MoodleModule):
 
     @requires_resolved("resources")
     async def get_resource(self, id_) -> MoodleResource:
-        return get(self.resources, id=id_)
+        return filter(self.resources, id=id_)
