@@ -1,3 +1,4 @@
+import typing
 from typing import Union, List, Any, Optional, Iterable
 
 
@@ -19,9 +20,13 @@ def check(obj: Union[object, dict], check_as_dict: bool, **kwargs) -> bool:
     return True
 
 
-def filter(seq: Iterable, check_as_dict: bool = False, only_one: bool = True, **kwargs) -> Optional[Union[List[Any], Any]]:
+T = typing.TypeVar("T")
+
+
+def filter(seq: Iterable[T], check_as_dict: bool = False, only_one: bool = False, **kwargs) -> Optional[Union[List[T], T]]:
     """
     Filters an iterable for items with specified attributes.
+
     :param seq: The sequence to filter
     :param check_as_dict: whether the attributes of the objects should be accessed as values of a dict or attributes of an object
     :param only_one: whether only one object or a list of all matching objects should be returned.
@@ -36,3 +41,16 @@ def filter(seq: Iterable, check_as_dict: bool = False, only_one: bool = True, **
             else:
                 out.append(item)
     return None if only_one else out
+
+
+def find(seq: Iterable[T], check_as_dict: bool = False, **kwargs) -> Optional[T]:
+    """
+    Searches an iterable for an item with the specified attributes.
+    Like filter() except it only searches one item.
+
+    :param seq: The sequence to search
+    :param check_as_dict: whether the attributes of the objects should be accessed as values of a dict or attributes of an object
+    :param kwargs: the attributes to check
+    :return: The found item or None if none found
+    """
+    return filter(seq, check_as_dict=check_as_dict, only_one=True, **kwargs)

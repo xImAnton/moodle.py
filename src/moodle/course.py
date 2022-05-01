@@ -5,7 +5,8 @@ from datetime import datetime
 from .modulebase import MoodleModule, requires_resolved
 from .resources import MoodleResource
 from .util import filter
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING, Iterator
+
 if TYPE_CHECKING:
     from .moodle import MoodleCrawler
 
@@ -27,7 +28,7 @@ class CourseManager(MoodleModule):
         for course in json:
             self.courses.append(MoodleCourse(self.moodle, course))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[MoodleCourse]:
         return iter(self.courses)
 
 
@@ -70,6 +71,9 @@ class MoodleCourse(MoodleModule):
 
     def __repr__(self) -> str:
         return f"MoodleCourse[id={self.id}, display_name=\"{self.display_name}\"]"
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
     async def fetch(self) -> None:
         data = {

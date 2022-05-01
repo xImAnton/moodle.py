@@ -33,6 +33,12 @@ class MoodleResource:
         """
         return min(self.content_files, key=attrgetter("modified"))
 
+    def __repr__(self) -> str:
+        return f"MoodleResource[id={self.id}, name=\"{self.name}\"]"
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
 
 class ContentFile:
     """
