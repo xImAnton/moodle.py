@@ -27,6 +27,9 @@ class CourseManager(MoodleModule):
         for course in json:
             self.courses.append(MoodleCourse(self.moodle, course))
 
+    def __iter__(self):
+        return iter(self.courses)
+
 
 class MoodleCourse(MoodleModule):
     IGNORE_FIELDS = {"default": ["id"],
