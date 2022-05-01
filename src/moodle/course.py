@@ -56,7 +56,7 @@ class MoodleCourse(MoodleModule):
             self.start_date: datetime = datetime.fromtimestamp(data["startdate"])
             self.end_date: datetime = None if data["enddate"] == 0 else datetime.fromtimestamp(data["enddate"])
             self.marker = data["marker"]
-            self.last_access: datetime = datetime.fromtimestamp(data["lastaccess"])
+            self.last_access: Optional[datetime] = datetime.fromtimestamp(data["lastaccess"]) if data["lastaccess"] else None
             self.overview_files: List[dict] = data["overviewfiles"]
             self._set_resolved("init")
         except KeyError:
